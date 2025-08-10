@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Tasks{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h4>Add New Task</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('main.tasks') }}">
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Task Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="subject_id" class="form-label">Subject</label>
+                        <select class="form-select" id="subject_id" name="subject_id" required>
+                            {% for subject in subjects %}
+                            <option value="{{ subject.id }}">{{ subject.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="deadline" class="form-label">Deadline</label>
+                        <input type="datetime-local" class="form-control" id="deadline" name="deadline" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="priority" class="form-label">Priority</label>
+                        <select class="form-select" id="priority" name="priority" required>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Add Task</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4>My Tasks</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Task</th>
+                                <th>Subject</th>
+                                <th>Deadline</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in tasks %}
+                            <tr>
+                                <td>{{ task.description }}</td>
+                                <td>{{ task.subject.name }}</td>
+                                <td>{{ task.deadline.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'danger' if task.priority == 'high' else 'warning' if task.priority == 'medium' else 'info' }}">
+                                        {{ task.priority.title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if task.status == 'completed' else 'primary' if task.status == 'in_progress' else 'secondary' }}">
+                                        {{ task.status.replace('_', ' ').title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-outline-primary update-status" data-task-id="{{ task.id }}" data-status="in_progress"
+                                            {{ 'disabled' if task.status == 'completed' }}>
+                                            Start
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success update-status" data-task-id="{{ task.id }}" data-status="completed"
+                                            {{ 'disabled' if task.status == 'completed' }}>
+                                            Complete
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    $('.update-status').click(function() {
+        const taskId = $(this).data('task-id');
+        const status = $(this).data('status');
+        const button = $(this);
+        
+        $.ajax({
+            url: `/update_task_status/${taskId}`,
+            method: 'POST',
+            data: { status: status },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                }
+            },
+            error: function(xhr) {
+                alert('Error updating task status');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

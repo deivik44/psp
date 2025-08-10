@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Add New Subject</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="form-group">
+                            <label for="name">Subject Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="difficulty">Difficulty Level</label>
+                            <select class="form-control" id="difficulty" name="difficulty" required>
+                                <option value="Easy">Easy</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Hard">Hard</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="estimated_time">Estimated Study Time (hours/week)</label>
+                            <input type="number" class="form-control" id="estimated_time" name="estimated_time" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Subject</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Your Subjects</h5>
+                </div>
+                <div class="card-body">
+                    {% if subjects %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Difficulty</th>
+                                    <th>Study Time</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for subject in subjects %}
+                                <tr>
+                                    <td>{{ subject.name }}</td>
+                                    <td>
+                                        <span class="badge badge-{{ 'success' if subject.difficulty_level == 'Easy' else 'warning' if subject.difficulty_level == 'Medium' else 'danger' }}">
+                                            {{ subject.difficulty_level }}
+                                        </span>
+                                    </td>
+                                    <td>{{ subject.estimated_time }} hours/week</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-danger">Delete</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p>No subjects added yet. Use the form on the left to add your first subject!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

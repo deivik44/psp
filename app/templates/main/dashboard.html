@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Welcome, {{ current_user.name }}!</h2>
+    
+    <div class="row mt-4">
+        <!-- Subjects Overview -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Your Subjects</h5>
+                </div>
+                <div class="card-body">
+                    {% if subjects %}
+                    <ul class="list-group">
+                        {% for subject in subjects %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ subject.name }}
+                            <span class="badge badge-primary badge-pill">{{ subject.difficulty_level }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>No subjects added yet.</p>
+                    {% endif %}
+                    <a href="{{ url_for('main.subjects') }}" class="btn btn-primary btn-sm mt-3">Manage Subjects</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Tasks -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Upcoming Tasks</h5>
+                </div>
+                <div class="card-body">
+                    {% if tasks %}
+                    <ul class="list-group">
+                        {% for task in tasks %}
+                        <li class="list-group-item">
+                            <h6 class="mb-1">{{ task.title }}</h6>
+                            <p class="mb-1 text-muted">Due: {{ task.deadline.strftime('%Y-%m-%d') }}</p>
+                            <small>Status: {{ task.status }}</small>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>No upcoming tasks.</p>
+                    {% endif %}
+                    <a href="{{ url_for('main.tasks') }}" class="btn btn-primary btn-sm mt-3">Manage Tasks</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Overview -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Performance Overview</h5>
+                </div>
+                <div class="card-body">
+                    {% if performances %}
+                    <ul class="list-group">
+                        {% for performance in performances %}
+                        <li class="list-group-item">
+                            <h6 class="mb-1">{{ performance.subject.name }}</h6>
+                            <p class="mb-1">Progress: {{ "%.1f"|format(performance.progress) }}%</p>
+                            <small>Date: {{ performance.last_updated.strftime('%Y-%m-%d') }}</small>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>No performance data available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

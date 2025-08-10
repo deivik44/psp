@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Edit Task</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="form-group">
+                            <label for="description">Task Description</label>
+                            <input type="text" class="form-control" id="description" name="description" value="{{ task.description }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject_id">Subject</label>
+                            <select class="form-control" id="subject_id" name="subject_id" required>
+                                {% for subject in subjects %}
+                                <option value="{{ subject.id }}" {% if subject.id == task.subject_id %}selected{% endif %}>
+                                    {{ subject.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="deadline">Deadline</label>
+                            <input type="datetime-local" class="form-control" id="deadline" name="deadline" 
+                                   value="{{ task.deadline.strftime('%Y-%m-%dT%H:%M') }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="priority">Priority</label>
+                            <select class="form-control" id="priority" name="priority" required>
+                                <option value="Low" {% if task.priority == 'Low' %}selected{% endif %}>Low</option>
+                                <option value="Medium" {% if task.priority == 'Medium' %}selected{% endif %}>Medium</option>
+                                <option value="High" {% if task.priority == 'High' %}selected{% endif %}>High</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select class="form-control" id="status" name="status" required>
+                                <option value="Pending" {% if task.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                <option value="In Progress" {% if task.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                                <option value="Completed" {% if task.status == 'Completed' %}selected{% endif %}>Completed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Update Task</button>
+                            <a href="{{ url_for('main.tasks') }}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

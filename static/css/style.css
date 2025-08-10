@@ -1,0 +1,79 @@
+/* Custom styles for Study Planner */
+
+body {
+    background-color: #f8f9fa;
+}
+
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,.05);
+    border: none;
+    margin-bottom: 1rem;
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid rgba(0,0,0,.125);
+}
+
+.progress {
+    height: 0.8rem;
+    background-color: #e9ecef;
+}
+
+.table th {
+    border-top: none;
+    background-color: #f8f9fa;
+}
+
+.badge {
+    padding: 0.5em 0.75em;
+}
+
+.btn-group {
+    box-shadow: none;
+}
+
+.list-group-item {
+    border: 1px solid rgba(0,0,0,.125);
+    margin-bottom: 0.5rem;
+}
+
+/* Custom colors for priority badges */
+.badge.bg-high {
+    background-color: #dc3545;
+}
+
+.badge.bg-medium {
+    background-color: #ffc107;
+}
+
+.badge.bg-low {
+    background-color: #17a2b8;
+}
+
+/* Form styling */
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Button hover effects */
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .table-responsive {
+        margin-bottom: 1rem;
+    }
+}
