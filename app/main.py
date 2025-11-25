@@ -3,9 +3,7 @@ from flask_login import login_required, current_user
 from app.models import Subject, Task, Schedule, Performance
 from app import db
 from datetime import datetime, timedelta
-from flask_mail import Mail,Message
 
-mail = Mail()
 main = Blueprint('main', __name__)
 
 @main.route('/')
