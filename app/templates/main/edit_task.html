@@ -11,8 +11,12 @@
                 <div class="card-body">
                     <form method="POST">
                         <div class="form-group">
+                            <label for="description">Task Title</label>
+                            <input type="text" class="form-control" id="title" name="title" value="{{ task.title }}" >
+                        </div>
+                        <div class="form-group">
                             <label for="description">Task Description</label>
-                            <input type="text" class="form-control" id="description" name="description" value="{{ task.description }}" required>
+                            <input type="text" class="form-control" id="description" name="description" value="{{ task.description }}" >
                         </div>
                         <div class="form-group">
                             <label for="subject_id">Subject</label>

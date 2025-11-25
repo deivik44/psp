@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 from flask_login import LoginManager
 
 db = SQLAlchemy()
@@ -10,6 +11,9 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
     
     db.init_app(app)
+    @app.before_request
+    def before_request():
+        db.session.execute(text('PRAGMA foreign_keys = ON'))
     
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'

@@ -17,7 +17,7 @@
                                 <option value="">Select a task...</option>
                                 {% for task in tasks %}
                                 <option value="{{ task.id }}">
-                                    {{ task.description }} (Due: {{ task.deadline.strftime('%Y-%m-%d') }})
+                                    {{ task.title }} (Due: {{ task.deadline.strftime('%Y-%m-%d') }})
                                 </option>
                                 {% endfor %}
                             </select>

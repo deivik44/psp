@@ -1,9 +1,11 @@
-from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
+from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for,current_app
 from flask_login import login_required, current_user
 from app.models import Subject, Task, Schedule, Performance
 from app import db
 from datetime import datetime, timedelta
+from flask_mail import Mail,Message
 
+mail = Mail()
 main = Blueprint('main', __name__)
 
 @main.route('/')
@@ -46,12 +48,24 @@ def subjects():
     
     subjects = Subject.query.filter_by(user_id=current_user.id).all()
     return render_template('main/subjects.html', subjects=subjects)
-
+@main.route('/subjects/<int:sub_id>/delete', methods=['POST'])
+@login_required
+def delete_sub(sub_id):
+    subject = Subject.query.get_or_404(sub_id)
+    if subject.user_id != current_user.id:
+        flash('You are not authorized to delete this subject.', 'danger')
+        return redirect(url_for('main.subjects'))
+    
+    db.session.delete(subject)
+    db.session.commit()
+    flash('Subject deleted successfully!', 'success')
+    return redirect(url_for('main.subjects'))
 @main.route('/tasks', methods=['GET', 'POST'])
 @login_required
 def tasks():
     if request.method == 'POST':
-        description = request.form.get('title')  # Get title from form as description
+        title = request.form.get('title')
+        description = request.form.get('description')  # Get title from form as description
         deadline_str = request.form.get('deadline')
         try:
             deadline = datetime.strptime(deadline_str, '%Y-%m-%dT%H:%M')
@@ -62,12 +76,13 @@ def tasks():
                 deadline = deadline.replace(hour=23, minute=59)
             except ValueError:
                 flash('Invalid deadline format. Please use the date picker.', 'danger')
-                return redirect(url_for('main.tasks'))
+                return redirect(url_for('main.subjects'))
                 
         subject_id = request.form.get('subject_id')
         priority = request.form.get('priority')
         
         task = Task(
+            title = title,
             description=description,
             deadline=deadline,
             subject_id=subject_id,
@@ -89,11 +104,13 @@ def tasks():
 @login_required
 def edit_task(task_id):
     task = Task.query.get_or_404(task_id)
+    print("STATUS RECEIVED FROM EDIT FORM:", task.status)
     if task.user_id != current_user.id:
         flash('You are not authorized to edit this task.', 'danger')
         return redirect(url_for('main.tasks'))
     
     if request.method == 'POST':
+        title = request.form.get('title')
         description = request.form.get('description')
         deadline_str = request.form.get('deadline')
         try:
@@ -108,8 +125,8 @@ def edit_task(task_id):
         
         # Store old subject_id to update performance if it changes
         old_subject_id = task.subject_id
-        
         # Update task
+        task.title = title
         task.description = description
         task.deadline = deadline
         task.subject_id = subject_id
@@ -117,6 +134,8 @@ def edit_task(task_id):
         task.status = status
         
         db.session.commit()
+       
+        
         
         # Update performance for both old and new subject if changed
         update_performance_metrics(current_user.id, old_subject_id)
@@ -261,6 +280,7 @@ def update_performance_metrics(user_id, subject_id):
 @login_required
 def update_task_status(task_id):
     task = Task.query.get_or_404(task_id)
+    print("route reached")
     if task.user_id != current_user.id:
         return jsonify({'success': False, 'error': 'Unauthorized'}), 403
     
@@ -270,6 +290,16 @@ def update_task_status(task_id):
     
     task.status = new_status
     db.session.commit()
+    if new_status == "Completed":
+        msg = Message(
+            subject="Task Completed!",
+            sender=current_app.config['MAIL_USERNAME'],
+            recipients=["deivikrajesh@gmail.com"],   # <-- put parent's email here
+            body=f"{current_user.name} has just completed the task: {task.description}"
+        )
+        print("Sending email")
+        mail.send(msg)
+        print("Enail Sent ")
     
     # Update performance metrics
     update_performance_metrics(current_user.id, task.subject_id)
@@ -291,3 +321,39 @@ def performance():
     tasks = Task.query.filter_by(user_id=current_user.id).all()
     
     return render_template('main/performance.html', performances=performances, tasks=tasks)
+@main.route('/profile')
+@login_required
+def profile():
+    # Get user details
+    user = current_user
+
+    # Count subjects
+    total_subjects = Subject.query.filter_by(user_id=user.id).count()
+
+    # Count tasks
+    total_tasks = Task.query.filter_by(user_id=user.id).count()
+
+    # Count completed tasks
+    completed_tasks = Task.query.filter_by(user_id=user.id, status='Completed').count()
+
+    # Calculate percentage
+    if total_tasks > 0:
+        percentage = round((completed_tasks / total_tasks) * 100, 2)
+    else:
+        percentage = 0
+
+    # Motivational message
+    if percentage >= 80:
+        message = "🔥 Excellent! Keep it up!"
+    elif percentage >= 40:
+        message = "⚡ Keep Going! You're improving."
+    else:
+        message = "🚀 Hurry Up! You can do better!"
+
+    return render_template('main/profile.html',
+                           user=user,
+                           total_subjects=total_subjects,
+                           total_tasks=total_tasks,
+                           completed_tasks=completed_tasks,
+                           percentage=percentage,
+                           message=message)
